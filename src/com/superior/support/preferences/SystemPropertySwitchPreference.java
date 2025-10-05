@@ -16,17 +16,19 @@
  * limitations under the License.
  */
 
- package com.superior.support.preferences;
+package com.superior.support.preferences;
 
 import android.content.Context;
 import android.util.AttributeSet;
 
+import androidx.preference.Preference;
 import androidx.preference.SwitchPreference;
+import androidx.preference.TwoStatePreference;
 
 public class SystemPropertySwitchPreference extends SwitchPreference {
 
-    public SystemPropertySwitchPreference(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+    public SystemPropertySwitchPreference(Context context) {
+        super(context);
         setPreferenceDataStore(new SystemPropertiesStore());
     }
 
@@ -35,19 +37,25 @@ public class SystemPropertySwitchPreference extends SwitchPreference {
         setPreferenceDataStore(new SystemPropertiesStore());
     }
 
-    public SystemPropertySwitchPreference(Context context) {
-        super(context);
+    public SystemPropertySwitchPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
         setPreferenceDataStore(new SystemPropertiesStore());
     }
 
     @Override
-    protected void onSetInitialValue(boolean restoreValue, Object defaultValue) {
-        // This is what default TwoStatePreference implementation is doing without respecting
-        // real default value:
-        //setChecked(restoreValue ? getPersistedBoolean(mChecked)
-        //        : (Boolean) defaultValue);
-        // Instead, we better do
-        setChecked(restoreValue ? getPersistedBoolean((Boolean) defaultValue)
-                : (Boolean) defaultValue);
+    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
+        boolean value;
+
+        if (defaultValue instanceof Boolean) {
+            value = (Boolean) defaultValue;
+        } else {
+            value = false;
+        }
+
+        if (restorePersistedValue) {
+            value = getPersistedBoolean(value);
+        }
+
+        setChecked(value);
     }
 }
